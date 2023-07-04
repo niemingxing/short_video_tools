@@ -143,7 +143,7 @@ function initSetting(callback)
 {
     // 获取存储的值
     chrome.storage.local.get('nmx_video_setting', function (data) {
-        mKey = (typeof data.nmx_video_setting.mkey !== 'undefined') ? data.nmx_video_setting.mkey : '';
+        mKey = data.nmx_video_setting.hasOwnProperty("mkey") ? data.nmx_video_setting.mkey : '';
         // 在这里使用存储的值
         console.log(mKey);
         if(callback) callback();

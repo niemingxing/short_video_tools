@@ -135,7 +135,7 @@ function checkMKey(callback)
         })
         .catch(err => {
             console.log('Request Failed', err);
-            if(callback) callback({"code":"1001",'message':"网络请求异常,稍后重试！"});
+            if(callback) callback({"code":"1001",'message':"网络请求异常,密钥验证走外网域名,可以科学试下!"});
         });
 }
 

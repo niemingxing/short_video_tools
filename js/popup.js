@@ -108,7 +108,8 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(err => {
                 submitButton.disabled = false;
-                alert('Request Failed', err);
+                showPopup("网络请求异常,密钥验证走外网域名,可以科学试下!");
+                console.log('Request Failed', err);
             });
     }
 

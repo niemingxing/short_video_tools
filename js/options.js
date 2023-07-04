@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 获取保存的密钥值并设置输入框的默认值
     chrome.storage.local.get('nmx_video_setting', function(result) {
-        let setting = result.setting;
+        let setting = result.nmx_video_setting;
         if (setting) {
             mKeyInput.value = setting.mkey;
             console.log(setting);

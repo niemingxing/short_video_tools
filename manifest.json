@@ -1,0 +1,61 @@
+{
+	"manifest_version": 3,
+	"name": "短视频采集助手",
+	"version": "1.0",
+	"description": "提取抖音站点无水印短视频",
+	"author": "niemingxing",
+	"icons":
+	{
+		"16":"icon16.png",
+		"48":"icon48.png",
+		"128":"icon128.png"
+	},
+	"action":
+	{
+		"default_icon": "icon16.png",
+		"default_popup": "popup.html"
+	},
+	"options_page": "options.html",
+	"background":
+	{
+		"service_worker": "js/background.js"
+	},
+	"host_permissions": [
+		"http://*/*",
+		"https://*/*"
+	],
+	"content_scripts": 
+	[
+		{
+			"matches": ["https://www.xiaohongshu.com/*","https://www.douyin.com/*"],
+			"js": ["js/content-script.js"],
+			"css": [
+				"css/page_layer.css"
+			]
+		}
+	],
+	"web_accessible_resources":
+	[
+		{
+			"resources" : ["css/page_layer.css"],
+			"matches": [
+				"*://www.douyin.com/*"
+			]
+		},
+		{
+			"resources": [
+				"style/extension.css",
+				"script/extension.js"
+			],
+			"matches": [
+				"https://example.com/*"
+			]
+		}
+	],
+	"permissions": [
+		"storage",
+		"activeTab",
+		"tabs",
+		"scripting"
+	]
+}

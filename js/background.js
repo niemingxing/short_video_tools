@@ -1,9 +1,9 @@
+let mKey = '';
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         console.log(request.type);
         if (request.type === "init_setting")
         {
             console.log(request.setting);
-            sendResponse({ farewell: "Background runtime onMessage!" });
         }
         else if(request.type == "web_spider_collect")
         {
@@ -12,9 +12,26 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         else if(request.type == "web_spider_complete")
         {
             chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-                //chrome.tabs.sendMessage(tabs[0].id, {'data':request.data,type:'web_spider_complete'});
+                chrome.tabs.sendMessage(tabs[0].id, {'data':request.data,type:'web_spider_complete'});
             });
         }
+        else if(request.type == "web_spider_error")
+        {
+            chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, {'data':request.data,type:'web_spider_error'});
+            });
+        }
+        else if(request.type == 'check_mkey')
+        {
+            initSetting(function (){
+                checkMKey(function (data){
+                    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+                        chrome.tabs.sendMessage(tabs[0].id, {'data':data,type:'check_mkey_complete'});
+                    });
+                });
+            });
+        }
+        sendResponse({ farewell: "Background runtime onMessage!" });
     }
 );
 
@@ -41,17 +58,19 @@ function openTabSpiderColletc(url)
                                         URL.revokeObjectURL(link.href);
                                         chrome.runtime.sendMessage({ 'type': 'web_spider_complete',"data":{"title":title} });
                                         window.close();
-
                                     }).catch(error => {
-                                        console.log("Error downloading the video:", error);
-                                    });
+                                    chrome.runtime.sendMessage({ 'type': 'web_spider_error',"data":{"title":title} });
+                                    console.log("Error downloading the video:", error);
+                                });
                             }
 
                             console.log("开始采集");
                             let title = document.title;
                             let intervalId = setInterval(function (){
                                 const videoElement = document.querySelector(".xg-video-container video");
-                                const videoDetailElement = document.querySelector("div.detail-video-info");
+                                const videoDetailElement = document.querySelector("div[data-e2e-aweme-id]");
+                                console.log(videoElement,videoDetailElement);
+                                console.log("检测对象");
                                 if(videoElement && videoDetailElement)
                                 {
                                     let sourceElements = videoElement.querySelectorAll("source");
@@ -84,4 +103,49 @@ function openTabSpiderColletc(url)
         });
     });
 
+}
+
+/**
+ * 检查mkey合法性
+ */
+function checkMKey(callback)
+{
+    if(mKey == '')
+    {
+        if(callback) callback({"code":"1002",'message':"没有配置密钥,请点击插件右上角设置！"});
+        return;
+    }
+    fetch('https://idnsl.xyz/code/check_mkey',{
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json, */*',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            'cache': 'default',
+            'x-ajax': 'true'
+        },
+        'credentials': 'include', //表示请求是否携带cookie
+        body: "mkey=" + mKey
+    })
+        // fetch()接收到的response是一个 Stream 对象
+        // response.json()是一个异步操作，取出所有内容，并将其转为 JSON 对象
+        .then(response => response.json())
+        .then(json => {
+            console.log(json);
+            if(callback) callback(json);
+        })
+        .catch(err => {
+            console.log('Request Failed', err);
+            if(callback) callback({"code":"1001",'message':"网络请求异常,稍后重试！"});
+        });
+}
+
+function initSetting(callback)
+{
+    // 获取存储的值
+    chrome.storage.local.get('nmx_video_setting', function (data) {
+        mKey = (typeof data.nmx_video_setting.mkey !== 'undefined') ? data.nmx_video_setting.mkey : '';
+        // 在这里使用存储的值
+        console.log(mKey);
+        if(callback) callback();
+    });
 }

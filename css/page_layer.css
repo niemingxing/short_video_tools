@@ -25,6 +25,13 @@
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
 }
+
+.gpt-sr-sidebar button:disabled {
+    background-color: #ccc;
+    color: #888;
+    cursor: not-allowed;
+}
+
 .gpt-sr-popup {
     position: fixed;
     top: 0;
@@ -179,7 +186,7 @@
     color: #000;
     text-align: center;
     border-radius: 6px;
-    padding: 15px 15px 5px 15px;
+    padding: 15px 15px 15px 15px;
     z-index: 1002;
 }
 
@@ -205,4 +212,39 @@
 
 .custom-popup-close-btn:last-child {
     margin-right: 0;
+}
+
+.custom-loading-progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #f1f1f1;
+    position: absolute;
+    overflow: hidden;
+    border-radius: 5px;
+    top: 2px;
+    z-index: 1002;
+}
+
+.custom-loading-progress-bar .custom-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #007bff;
+    animation: loadingAnimation 2s linear infinite;
+}
+
+@keyframes loadingAnimation {
+    0% {
+        left: -100%;
+        width: 100%;
+    }
+    50% {
+        left: 100%;
+        width: 0;
+    }
+    100% {
+        left: 100%;
+        width: 0;
+    }
 }

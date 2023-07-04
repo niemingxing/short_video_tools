@@ -8,14 +8,14 @@ document.addEventListener('DOMContentLoaded', function () {
         mKey = (typeof data.nmx_video_setting.mkey !== 'undefined') ? data.nmx_video_setting.mkey : '';
         // 在这里使用存储的值
         console.log(mKey);
-        chrome.runtime.sendMessage({"type":"init_setting","setting":data.setting}, function (response) {
+        chrome.runtime.sendMessage({"type":"init_setting","setting":data.nmx_video_setting}, function (response) {
             console.log(response.farewell)
         });
     });
 
 
     chrome.storage.local.get('nmx_video_pga_keywords', function (data) {
-        $("#pga_keywords").val(data.nmx_video_pga_keywords);
+
     });
 
 

@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"name": "短视频采集助手",
 	"version": "1.0",
-	"description": "提取抖音站点无水印短视频",
+	"description": "提取抖音站点无水印视频",
 	"author": "niemingxing",
 	"icons":
 	{

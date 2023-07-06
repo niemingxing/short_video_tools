@@ -1,4 +1,5 @@
 ﻿let currentDomain = window.location.hostname;
+let currentUrl = window.location.href;
 
 /**
  * 发送url请求
@@ -74,6 +75,22 @@ function downloadStreamVideo(url, fileName) {
 }
 
 /**
+ * 保存内容为csv文件
+ * @param csvContent
+ */
+function downloadCsv(csvContent)
+{
+	// 创建一个 Blob 对象，将内容保存为 CSV 文件
+	var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+
+	// 生成一个临时下载链接并下载文件
+	var link = document.createElement("a");
+	link.href = URL.createObjectURL(blob);
+	link.download = "data(" + currentDomain+ ").csv";
+	link.click();
+}
+
+/**
  * 初始化弹层
  */
 function initDownloadButton() {
@@ -106,6 +123,17 @@ function initDownloadButton() {
 function activiteDownloadButton()
 {
 	document.querySelector("#gpt-sr-toggleButton").disabled = false;
+}
+
+function initOtherActon()
+{
+	let pageType = getPageType();
+	if(pageType == "douyin_search" || pageType == "douyin_user" || pageType == "douyin_search_user")
+	{
+		setInterval(function (){
+			updateDownloadButtonVideoCount();
+		},3000);
+	}
 }
 
 /**
@@ -193,6 +221,40 @@ function addStylesheet(url) {
  */
 function startDownload()
 {
+	let pageType = getPageType();
+	if(pageType == "douyin_search" || pageType == "douyin_user" || pageType == "douyin_search_user")
+	{
+		startVideoListDataDownload();
+	}
+	else
+	{
+		startVideoDownload();
+	}
+}
+
+/**
+ * 视频数据下载
+ */
+function startVideoListDataDownload()
+{
+	let videoListData = getSearchVideoData();
+	let header = [];
+	let keys = []
+	let pageType = getPageType();
+	if(pageType == "douyin_search_user")
+	{
+		header = ["名称","抖音ID","点赞文本","点赞数","粉丝文本","粉丝数","简介","疑似微信号","主页地址"];
+		keys = ["name","dyid","like_text","like_nums","fans_text","fans_nums","intro","wx_ids","user_url"];
+	}
+	let csvContent = convertToCSVContent(videoListData,header,keys);
+	downloadCsv(csvContent);
+}
+
+/**
+ * 开始下载视频
+ */
+function startVideoDownload()
+{
 	const videoElements = document.querySelectorAll("xg-video-container.xg-video-container video");
 	const videoDetailElements = document.querySelectorAll("div[data-e2e-aweme-id]");
 	if(videoElements.length >0)
@@ -224,12 +286,272 @@ function startDownload()
 		}
 	}
 }
+
+/**
+ * 获取页面类型
+ * @returns {string}
+ */
+function getPageType()
+{
+	currentUrl = window.location.href;
+	let pageType;
+	if(currentUrl.includes("https://www.douyin.com/search/") && currentUrl.includes("type=user"))
+	{
+		pageType = "douyin_search_user";
+	}
+	else if(currentUrl.includes("https://www.douyin.com/search/"))
+	{
+		pageType = "douyin_search";
+	}
+	else if(currentUrl.includes("https://www.douyin.com/discover"))
+	{
+		pageType = "douyin_home";
+	}
+	else if(currentUrl.includes("https://www.douyin.com/video/"))
+	{
+		pageType = "douyin_video";
+	}
+	else if(currentUrl.includes("https://www.douyin.com/user/"))
+	{
+		pageType = "douyin_user";
+	}
+	console.log(pageType);
+	return pageType;
+}
+
+/**
+ * 更新按钮统计文案
+ */
+function updateDownloadButtonVideoCount()
+{
+	let buttonElement = document.querySelector("#gpt-sr-toggleButton");
+	let videoNums = getSearchVideoCount();
+	buttonElement.textContent = "下载数据(" + videoNums + ")";
+}
+
+/**
+ * 获取搜索页视频数量
+ * @returns {number}
+ */
+function getSearchVideoCount()
+{
+	let pageType = getPageType();
+	let items;
+	if(pageType == "douyin_search")
+	{
+		items = document.querySelectorAll("div[data-home-video-id]");
+		return items.length;
+	}
+	else if(pageType == "douyin_user")
+	{
+		items = document.querySelectorAll("div[data-e2e=user-post-list] ul li");
+		return items.length;
+	}
+	else if(pageType == "douyin_search_user");
+	{
+		let aItems = document.querySelectorAll("ul li div.avatar-component-avatar-container");
+		let bItems = document.querySelectorAll("ul li span[data-e2e=user-info-living]");
+		return aItems.length + bItems.length;
+	}
+	return 0;
+}
+
+/**
+ * 获取搜索页视频数据
+ * @returns {*[]}
+ */
+function getSearchVideoData()
+{
+	let pageType;
+	let items;
+	let downloadData = [];
+	pageType = getPageType();
+	if(pageType == "douyin_search") {
+		items = document.querySelectorAll("div[data-home-video-id]");
+		items.forEach((node) => {
+			// 操作每个节点的代码
+
+			let nItem = node.nextElementSibling;
+			let dItem = nItem.querySelectorAll("div");
+			let title = dItem[1].innerText;
+			console.log(title);
+			let cItem = dItem[2].querySelectorAll("span");
+			let auther = cItem[0].innerText;
+			let dateStr = cItem[3].innerText;
+			let linkItem = node.parentNode.parentNode;
+			let tags = node.querySelectorAll("span");
+			let likeText = tags.length > 0 ? tags[tags.length - 1].innerText : "0";
+			let likeNums = convertToNumber(likeText);
+			let videoUrl = linkItem.href;
+			let dataItem = {
+				"auther": auther,
+				"title": title,
+				"like_text": likeText,
+				"like_nums": likeNums,
+				"video_url": videoUrl,
+				"date_str": dateStr
+			};
+			downloadData.push(dataItem);
+
+		});
+	}
+	else if(pageType == "douyin_user")
+	{
+		items = document.querySelectorAll("div[data-e2e=user-post-list] ul li");
+		items.forEach((node) => {
+			// 操作每个节点的代码
+			let tItem = node.querySelector("p");
+			let title = tItem.innerText;
+			console.log(title);
+			let auther = "--";
+			let dateStr = "--";
+			let linkItem = node.querySelector("a");
+			let likeText = node.querySelector("span.author-card-user-video-like").innerText;
+			let likeNums = convertToNumber(likeText);
+			let videoUrl = linkItem.href;
+			let dataItem = {
+				"auther": auther,
+				"title": title,
+				"like_text": likeText,
+				"like_nums": likeNums,
+				"video_url": videoUrl,
+				"date_str": dateStr
+			};
+			console.log(dataItem);
+			downloadData.push(dataItem);
+		});
+	}
+	else if(pageType == "douyin_search_user");
+	{
+		let aItems = document.querySelectorAll("ul li div.avatar-component-avatar-container");
+		let bItems = document.querySelectorAll("ul li span[data-e2e=user-info-living]");
+		aItems.forEach((node) => {
+			// 操作每个节点的代码
+			let nItem = node.nextElementSibling;
+			let name = nItem.innerText;
+			let bInfo = node.parentElement.nextElementSibling;
+			let spans = bInfo.querySelectorAll("span");
+			let dyId = spans[0].innerText;
+			let likeText = spans[3].innerText;
+			let likeNums = convertToNumber(likeText);
+			let fansText = spans[5].innerText
+			let fansNums = convertToNumber(fansText);
+			let userUrl = node.parentElement.parentElement.href;
+			let intro = bInfo.nextElementSibling.innerText;
+			let wxIds = extractWeChatIds(intro);
+			let dataItem = {
+				"name": name,
+				"dyid": dyId,
+				"like_text": likeText,
+				"like_nums": likeNums,
+				"user_url": userUrl,
+				"fans_nums": fansNums,
+				"fans_text":fansText,
+				"intro":intro,
+				"wx_ids":wxIds
+			};
+			//console.log(wxIds,intro);
+			downloadData.push(dataItem);
+		});
+
+		bItems.forEach((node) => {
+			// 操作每个节点的代码
+			let nItem = node.parentElement.parentElement.parentElement.parentElement.nextElementSibling;
+			let name = nItem.innerText;
+			let bInfo = node.parentElement.parentElement.parentElement.parentElement.parentElement.nextElementSibling;
+			let spans = bInfo.querySelectorAll("span");
+			let dyId = spans[0].innerText;
+			let likeText = spans[3].innerText;
+			let likeNums = convertToNumber(likeText);
+			let fansText = spans[5].innerText
+			let fansNums = convertToNumber(fansText);
+			let userUrl = node.parentElement.parentElement.parentElement.href;
+			let intro = bInfo.nextElementSibling.innerText;
+			let wxIds = extractWeChatIds(intro);
+			let dataItem = {
+				"name": name,
+				"dyid": dyId,
+				"like_text": likeText,
+				"like_nums": likeNums,
+				"user_url": userUrl,
+				"fans_nums": fansNums,
+				"fans_text":fansText,
+				"intro":intro,
+				"wx_ids":wxIds
+			};
+			//console.log(dataItem);
+			downloadData.push(dataItem);
+		});
+
+	}
+	//console.log(downloadData);
+	return downloadData;
+}
+
+/**
+ * 点赞量转数字
+ * @param str
+ * @returns {number|number}
+ */
+function convertToNumber(str) {
+	const match = str.match(/(\d+(\.\d+)?)/);
+	if (match) {
+		const num = parseFloat(match[1]);
+		return str.includes("万") ? num * 10000 : num;
+	}
+	return NaN;
+}
+
+/**
+ * 格式化csv内容特殊字符
+ * @param value
+ * @returns {string}
+ */
+function formatCSVValue(value) {
+	if (typeof value === 'string') {
+		if (/[",\n\t]/.test(value)) {
+			value = value.replace(/"/g, '""');
+			value = `"${value}"`;
+		}
+	}
+	return value;
+}
+
+/**
+ * 把数组转换成csv内容
+ * @param data
+ * @returns {string}
+ */
+function convertToCSVContent(data,header=[],keysArr = []) {
+	let pHeader = header.length == 0 ? ["作者", "标题", "点赞文本", "点赞数量", "视频地址", "日期"] : header;
+	let pKeysArr = keysArr.length ==0 ? ["auther", "title", "like_text", "like_nums", "video_url", "date_str"] : keysArr;
+	const rows = data.map(row => pKeysArr.map(key => formatCSVValue(row[key])).join(","));
+	return [pHeader.join(",")].concat(rows).join("\n");
+}
+
+/**
+ * 微信号提取
+ * @param text
+ * @returns {null|*}
+ */
+function extractWeChatIds(text) {
+	const regex = /[\w\-+.]{6,20}/g; // 贪婪匹配，匹配包含字母、数字、下划线、连字符、加号和点号的字符序列
+	const matches = text.match(regex);
+	if (matches && matches.length > 0) {
+		return matches.join("、");
+	}
+	return null; // 未找到微信号
+}
+
+
+
 // 在页面加载完成后插入弹层和引入CSS文件
 window.onload = function() {
 	if(currentDomain.includes("www.douyin.com"))
 	{
 		initPromptMessagePopup();
 		initDownloadButton();
+		initOtherActon();
 		addStylesheet("css/page_layer.css");
 	}
 };

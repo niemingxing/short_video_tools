@@ -96,7 +96,7 @@ function downloadCsv(csvContent)
 function initDownloadButton() {
 	const html = '<div class="gpt-sr-container">\n' +
 		'    <div class="gpt-sr-sidebar">\n' +
-		'      <button id="gpt-sr-toggleButton">立即下载</button>\n' +
+		'      <button id="gpt-sr-toggleButton">视频下载</button>\n' +
 		'    </div>\n' +
 		'  </div>\n' +
 		'  \n' +
@@ -326,7 +326,7 @@ function updateDownloadButtonVideoCount()
 {
 	let buttonElement = document.querySelector("#gpt-sr-toggleButton");
 	let videoNums = getSearchVideoCount();
-	buttonElement.textContent = "下载数据(" + videoNums + ")";
+	buttonElement.textContent = "数据下载(" + videoNums + ")";
 }
 
 /**

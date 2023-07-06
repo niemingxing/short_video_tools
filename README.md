@@ -12,4 +12,11 @@
 
 3.用户个人页面作品数据采集
 
-![插件图片](https://i.ibb.co/x3vSJZd/WX20230704-214552-2x.png)
+部分功能图片展示：
+![视频下载](https://i.ibb.co/x3vSJZd/WX20230704-214552-2x.png)
+
+![数据采集](https://i.ibb.co/Wf0CMzC/WX20230706-115301-2x.png)
+
+![数据采集](https://i.ibb.co/P6pTwb3/WX20230706-115425-2x.png)
+
+![数据采集](https://i.ibb.co/N6xk8qL/WX20230706-115532-2x.png)

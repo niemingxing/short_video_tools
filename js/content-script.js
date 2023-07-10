@@ -497,7 +497,15 @@ function convertToNumber(str) {
 	const match = str.match(/(\d+(\.\d+)?)/);
 	if (match) {
 		const num = parseFloat(match[1]);
-		return str.includes("万") ? num * 10000 : num;
+		if(str.includes("万"))
+		{
+			return num * 10000;
+		}
+		else if(str.includes("亿"))
+		{
+			return num * 10000 * 10000;
+		}
+		return num;
 	}
 	return NaN;
 }

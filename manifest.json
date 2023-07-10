@@ -28,7 +28,7 @@
 	[
 		{
 			"matches": ["https://www.xiaohongshu.com/*","https://www.douyin.com/*"],
-			"js": ["js/content-script.js"],
+			"js": ["js/jszip.min.js","js/content-script.js"],
 			"css": [
 				"css/page_layer.css"
 			]

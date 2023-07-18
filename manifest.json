@@ -1,8 +1,8 @@
 {
 	"manifest_version": 3,
-	"name": "短视频采集助手",
+	"name": "抖音短视频运营助手",
 	"version": "1.0",
-	"description": "提取抖音站点无水印视频",
+	"description": "抖音短视频运营助手,帮助您更轻松的开启抖音之旅。",
 	"author": "niemingxing",
 	"icons":
 	{
@@ -21,8 +21,7 @@
 		"service_worker": "js/background.js"
 	},
 	"host_permissions": [
-		"http://*/*",
-		"https://*/*"
+		"https://idnsl.xyz/*"
 	],
 	"content_scripts": 
 	[
@@ -40,15 +39,6 @@
 			"resources" : ["css/page_layer.css"],
 			"matches": [
 				"*://www.douyin.com/*"
-			]
-		},
-		{
-			"resources": [
-				"style/extension.css",
-				"script/extension.js"
-			],
-			"matches": [
-				"https://example.com/*"
 			]
 		}
 	],

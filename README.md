@@ -21,6 +21,10 @@
 
 ![数据采集](https://i.ibb.co/N6xk8qL/WX20230706-115532-2x.png)
 
-沟通交流：
+### 沟通交流：
 
 ![vx:histargo](https://i.ibb.co/hMbTs1G/a3779b33-bfe2-4ff9-a592-f0ec090a3055-1-2.jpg)
+
+### 赞赏鼓励(微信赞赏)
+
+![微信赞赏](https://github.com/niemingxing/search-recommendations/assets/7400829/ddd8b306-9cd4-448c-9700-4eea9ce630fb)

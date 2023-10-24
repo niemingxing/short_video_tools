@@ -22,7 +22,8 @@
 	},
 	"host_permissions": [
 		"https://idnsl.xyz/*",
-		"https://www.douyin.com/*"
+		"https://www.douyin.com/*",
+		"https://api.kaipm.com/*"
 	],
 	"content_scripts": 
 	[
